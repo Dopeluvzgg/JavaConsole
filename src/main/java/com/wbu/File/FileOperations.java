@@ -1,12 +1,10 @@
 package com.wbu.File;
 
+import com.wbu.Utils.Utils;
 import com.wbu.definition.Operation;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.wbu.Utils.Const.*;
 
@@ -15,7 +13,7 @@ import static com.wbu.Utils.Const.*;
  * @className FileOperations
  * @description
  * @date 2023/12/4
- * × @version 1.0
+ * @version 1.0
  */
 public class FileOperations implements Operation {
 
@@ -24,11 +22,12 @@ public class FileOperations implements Operation {
     @Override
     public void printOperation(Scanner scanner, short index) {
         System.out.print("\033[H\033[2J");
-        System.out.println("=================================");
-        System.out.println("======欢迎使用文件操作小工具=========");
-        System.out.println("=======请输入相应数字使用===========");
-        System.out.println("===========1.文件查找=============");
-        System.out.println("===========2.文件编码转换==========");
+        System.out.println("===================================");
+        System.out.println("========欢迎使用文件操作小工具=========");
+        System.out.println("========请输入相应数字使用===========");
+        System.out.println("============1.文件查找==============");
+        System.out.println("============2.文件编码转换===========");
+        System.out.println("===========3.文件夹内容去重==========");
         System.out.println("=================================");
 
         if (index == 0)
@@ -65,8 +64,10 @@ public class FileOperations implements Operation {
                 }
                 break;
             case OPERATION_DELETE_DUPLICATE_FILE:
+                // 获取要去重的目录名
                 directoryName = scanner.next();
-                while (!deleteDuplicateFile(directoryName)) {
+                // 执行去重操作
+                while (!deleteDuplicateFile(directoryName, new HashSet<>())) {
                     directoryName = scanner.next();
                 }
                 break;
@@ -118,7 +119,6 @@ public class FileOperations implements Operation {
         if (file.exists()) {
             int readLen;
             byte[] bytes = new byte[1024];
-            int dotIndex = file.getName().indexOf(".");
 
             File tempFile = null;
             FileInputStream fileInputStream = null;
@@ -157,7 +157,7 @@ public class FileOperations implements Operation {
                         fileOutputStream.close();
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    System.out.println("系统资源释放异常！");
                 }
             }
             return handleFlag;
@@ -167,13 +167,32 @@ public class FileOperations implements Operation {
         return false;
     }
 
-    public boolean deleteDuplicateFile(String directoryName) {
+    /**
+     * 删除目录下所有的重复文件
+     * @param directoryName 目录名称，要求目录必须存在，并且是目录，不能是文件，不能是空目录。
+     * @param filesSet 用于存储已经查找过的文件，避免重复查找。
+     * @return 是否执行成功，如果目录有效，没有找到重复文件也算执行成功。
+     */
+    private boolean deleteDuplicateFile(String directoryName, Set<Integer> filesSet) {
+        // 获取目录下所有的文件，包括文件名和目录名，并且构建绝对路径。
         File directory = new File(directoryName);
-        ArrayList<File> fileList = new ArrayList<>();
+        // 如果目录存在，且是目录，则遍历目录下所有的文件，并且检查是否重复。
         if (directory.exists() && directory.isDirectory()) {
             String[] files = directory.list();
             if (files != null) {
-                Arrays.stream(files).forEach(file -> fileList.add(new File(file)));
+                for (String fileName : files) {
+                    // 构建文件的绝对路径
+                    File file = new File(directoryName + File.separator + fileName);
+                    // 如果是目录，则递归调用删除重复文件的方法
+                    if (file.isDirectory()) {
+                        deleteDuplicateFile(file.getAbsolutePath(), filesSet);
+                    // 如果是文件，则检查是否重复
+                    } else if (!filesSet.add(Arrays.hashCode(Utils.generateFileMD5(file)))) {
+                        System.out.println("找到重复的文件:" + file.getAbsolutePath());
+                        if (!file.delete())
+                            System.out.println("删除失败！" + file.getAbsolutePath());
+                    }
+                }
             }
         }
         else {

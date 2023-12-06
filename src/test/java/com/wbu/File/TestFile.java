@@ -1,10 +1,8 @@
 package com.wbu.File;
 
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.File;
 import java.util.Scanner;
 
 /**
@@ -40,9 +38,9 @@ public class TestFile {
 
      @Test
      public void testDeleteDuplicateFile() {
-//          F:\test
-//          operate = 3;
-//          operator.printOperation(scanner, operate);
-//          boolean flag = operator.deleteDuplicateFile("F:\\test");
+          operate = 3;
+          operator.printOperation(scanner, operate);
+//          System.out.printf("hashcode: %d\n",Arrays.hashCode(Utils.generateFileMD5(new File("F:\\test - コピー\\炉石 - コピー (7).bat"))));
+//          System.out.printf("hashcode: %d\n", Arrays.hashCode(Utils.generateFileMD5(new File("F:\\test - コピー\\炉石 - コピー (5).bat"))));
      }
 }
