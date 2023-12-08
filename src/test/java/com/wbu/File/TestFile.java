@@ -40,7 +40,6 @@ public class TestFile {
      public void testDeleteDuplicateFile() {
           operate = 3;
           operator.printOperation(scanner, operate);
-//          System.out.printf("hashcode: %d\n",Arrays.hashCode(Utils.generateFileMD5(new File("F:\\test - コピー\\炉石 - コピー (7).bat"))));
-//          System.out.printf("hashcode: %d\n", Arrays.hashCode(Utils.generateFileMD5(new File("F:\\test - コピー\\炉石 - コピー (5).bat"))));
+
      }
 }

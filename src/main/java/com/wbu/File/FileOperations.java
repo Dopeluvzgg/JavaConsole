@@ -10,14 +10,14 @@ import static com.wbu.definition.Const.*;
 
 /**
  * @author shuo.yu2@dxc.com
+ * @version 1.0
  * @className FileOperations
  * @description
  * @date 2023/12/4
- * @version 1.0
  */
 public class FileOperations implements Operation {
 
-    private int matchFileCount;
+    private int matchFileCount = 0;
 
     @Override
     public void printOperation(Scanner scanner, short index) {
@@ -70,22 +70,23 @@ public class FileOperations implements Operation {
                 System.out.println("请输入要去重的文件的路径:");
                 directoryName = scanner.next();
                 // 执行去重操作
-                deleteDuplicateFile(directoryName, new HashSet<>());
+                deleteDuplicateFiles(directoryName, new HashSet<>());
                 break;
         }
     }
 
     /**
      * 在所给目录里查找用户想查找的文件
+     *
      * @param directoryName 想查找文件的目录路径
-     * @param fileName 要查找的文件名
+     * @param fileName      要查找的文件名
      */
     private void findFile(String directoryName, String fileName) {
         File directory = new File(directoryName);
         // 如果目录存在而且有读取权限，并且用户提供的是目录的名称，
         if (directory.exists() && directory.isDirectory() && directory.canRead()) {
             // 获取该目录下所有的项目，包括文件名和目录名
-            for (String name: Objects.requireNonNull(directory.list())) {
+            for (String name : Objects.requireNonNull(directory.list())) {
                 // 为每个项目构建绝对路径
                 File file = new File(directoryName + "\\" + name);
                 // 如果该项目也是目录，继续进入该目录查找目标文件
@@ -104,9 +105,9 @@ public class FileOperations implements Operation {
     }
 
     /**
-     * @param fileName 要转换编码的文件名
+     * @param fileName   要转换编码的文件名
      * @param fromEncode 文件原本的编码格式
-     * @param toEncode 要转换的编码格式
+     * @param toEncode   要转换的编码格式
      */
     private void transferEncode(String fileName, String fromEncode, String toEncode) {
         // 获取指定文件
@@ -128,7 +129,7 @@ public class FileOperations implements Operation {
                 // 从目标文件读取一定字节转换成用户要求的编码格式后写入临时文件
                 while ((readLen = fileInputStream.read(bytes)) > 0) {
                     // 将读取到的字节写入到转换后的文件
-                    String transferString = new String(bytes, 0, readLen,fromEncode);
+                    String transferString = new String(bytes, 0, readLen, fromEncode);
                     System.out.println(new String(transferString.getBytes(toEncode)));
                     fileOutputStream.write(transferString.getBytes(toEncode));
                 }
@@ -159,10 +160,11 @@ public class FileOperations implements Operation {
 
     /**
      * 删除目录下所有的重复文件
+     *
      * @param directoryName 目录名称，要求目录必须存在，并且是目录，不能是文件，不能是空目录。
-     * @param filesSet 用于存储已经查找过的文件，避免重复查找。
+     * @param filesSet      用于存储已经查找过的文件，避免重复查找。
      */
-    private void deleteDuplicateFile(String directoryName, Set<Integer> filesSet) {
+    private void deleteDuplicateFiles(String directoryName, Set<Integer> filesSet) {
         // 获取目录下所有的文件，包括文件名和目录名，并且构建绝对路径。
         File directory = new File(directoryName);
         // 如果目录存在，且是目录，则遍历目录下所有的文件，并且检查是否重复。
@@ -174,8 +176,8 @@ public class FileOperations implements Operation {
                     File file = new File(directoryName + File.separator + fileName);
                     // 如果是目录，则递归调用删除重复文件的方法
                     if (file.isDirectory()) {
-                        deleteDuplicateFile(file.getAbsolutePath(), filesSet);
-                    // 如果是文件，则检查是否重复
+                        deleteDuplicateFiles(file.getAbsolutePath(), filesSet);
+                        // 如果是文件，则检查是否重复
                     } else if (!filesSet.add(Arrays.hashCode(Utils.generateFileMD5(file)))) {
                         System.out.println("找到重复的文件:" + file.getAbsolutePath());
                         if (!file.delete())
@@ -183,8 +185,7 @@ public class FileOperations implements Operation {
                     }
                 }
             }
-        }
-        else {
+        } else {
             System.out.println("该目录不存在！");
         }
     }
